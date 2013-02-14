@@ -34,8 +34,8 @@ module AssetSync
     validates :fog_provider,          :presence => true
     validates :fog_directory,         :presence => true
 
-    validates :aws_access_key_id,     :presence => true, :if => :aws?
-    validates :aws_secret_access_key, :presence => true, :if => :aws?
+    validates :aws_access_key_id,     :presence => true, :if => Proc.new{|f| f.aws? && !Fog.credentials[:aws_access_key_id]}
+    validates :aws_secret_access_key, :presence => true, :if => Proc.new{|f| f.aws? && !Fog.credentials[:aws_secret_access_key]}
     validates :rackspace_username,    :presence => true, :if => :rackspace?
     validates :rackspace_api_key,     :presence => true, :if => :rackspace?
     validates :google_storage_secret_access_key,  :presence => true, :if => :google?
@@ -148,10 +148,8 @@ module AssetSync
     def fog_options
       options = { :provider => fog_provider }
       if aws?
-        options.merge!({
-          :aws_access_key_id => aws_access_key_id,
-          :aws_secret_access_key => aws_secret_access_key
-        })
+        options.merge!(:aws_access_key_id => aws_access_key_id) if aws_access_key_id
+        options.merge!(:aws_secret_access_key => aws_access_key_id) if aws_secret_access_key
       elsif rackspace?
         options.merge!({
           :rackspace_username => rackspace_username,

@@ -8,6 +8,11 @@ module AssetSync
 
       app_yaml = Rails.root.join('config', 'asset_sync.yml').to_s
 
+      fog_yml = Rails.root.join('config', 'fog_credentials.yml').to_s
+      if File.exists?(fog_yml)
+        Fog.credentials_path = Rails.root.join(fog_yml)
+      end
+
       if File.exists?( app_initializer )
         AssetSync.log "AssetSync: using #{app_initializer}"
         load app_initializer
@@ -42,8 +47,8 @@ module AssetSync
 #        config.existing_remote_files = ENV['ASSET_SYNC_EXISTING_REMOTE_FILES'] || "keep"
 #        config.gzip_compression = ENV['ASSET_SYNC_GZIP_COMPRESSION'] == 'true'
 #        config.manifest = ENV['ASSET_SYNC_MANIFEST'] == 'true'
-
       end
+
 
       if File.exists?( app_yaml )
         AssetSync.log "AssetSync: YAML file found #{app_yaml} settings will be merged into the configuration"
